@@ -1,0 +1,27 @@
+<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+  <a class="navbar-brand col-8 col-sm-3 col-md-2 mr-0" href="/">Quản trị</a>
+  <!-- <input class="form-control form-control-dark w-100" type="text" placeholder="" aria-label="Search"> -->
+  <ul class="navbar-nav px-3">
+    <li class="nav-item text-nowrap">
+      <a id="logoutBtn" class="nav-link" href="#">Đăng xuất</a>
+    </li>
+  </ul>
+</nav>
+
+<script>
+  $('#logoutBtn').on( 'click', function (e) {
+    e.preventDefault();
+    $.ajax({
+      url: `/auth/logout`,
+      type: 'GET',
+    }).done(function (data) {
+      window.location.replace("/auth/login");
+    }).fail(function (error) {
+      Swal.fire({
+          title: 'Lỗi!',
+          icon: 'error',
+          confirmButtonText: 'Cool'
+      })
+    });
+  });
+</script>

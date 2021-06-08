@@ -1,0 +1,148 @@
+<!-- Modal Roles -->
+<div class="modal fade" id="userRolesModal">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+          <h6 class="modal-title">Danh sách vai trò</h6>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+          
+      <div class="modal-body">
+        <form id="revokeUserRole">
+          <h6 class="py-2">Vai trò đã cấp:</h6>
+          <select id="userRoles" class="custom-select" style="width: 100%"></select>
+          <div class="modal-footer border-0 px-0 pb-1">
+            <button id="revokeUserRoleBtn" type="submit" class="btn btn-sm btn-danger disabled">Thu hồi</button>
+          </div>
+          <ul class="abort"></ul>
+        </form>
+
+        <form id="grantUserRole">
+          <h6 class="py-2">Cấp thêm vai trò:</h6>
+          <select id="allRoles" class="custom-select" style="width: 100%"></select>
+          <div class="pt-2">
+            <input type="checkbox" id="grantRoleOption" data-toggle="toggle"
+            data-size="xs">
+            <label for="lockSwitch">WITH ADMIN OPTION</label>
+          </div>
+
+          <div class="modal-footer border-0 px-0 py-2">
+            <button id="grantUserRoleBtn" type="submit" class="btn btn-sm btn-success disabled">Cấp vai trò</button>
+          </div>
+          <ul class="check"></ul>
+        </form>
+      </div>
+      
+      <div class="modal-footer py-2">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<script>
+  $("#userRolesModal").on("hidden.bs.modal", function(){
+    $(this).find("select").val('');
+    $(this).find("input").val('');
+    $(this).find("ul").empty();
+  });
+
+  // Get user role list
+  $('#userRolesModal').on('show.bs.modal', function (event) {
+    const username = $('#selectedVal').text();
+    $('#userRoles').select2({
+      placeholder: "Chưa chọn",
+      ajax: {
+        url: `/users/${username}/roles`,
+        dataType: 'json',
+        processResults: function (data) {
+          return {
+            results: data.map(item => ({...item, id: item.GRANTED_ROLE, text: `${item.GRANTED_ROLE}${item.ADMIN_OPTION === 'YES' ? ' - (WITH ADMIN OPTION) ' : ''}`}))
+          };
+        }
+      },
+      language: {
+        noResults: () => "Không tìm thấy dữ liệu!"
+      }
+    });
+
+    // Get all role list
+    $('#allRoles').select2({
+      placeholder: "Chưa chọn",
+      ajax: {
+        url: `/roles/available?username=${username}`,
+        dataType: 'json',
+        processResults: function (data) {
+          return {
+            results: data.map(item => ({...item, id: item.ROLE, text: item.ROLE}))
+          };
+        }
+      },
+      language: {
+        noResults: () => "Không tìm thấy dữ liệu!"
+      }
+    });
+  });
+
+  // On revoke
+  $('#userRoles').on('select2:select', function (event) {
+    $('#revokeUserRoleBtn').removeClass('disabled')
+  });
+  $("#revokeUserRole").submit(function(e){
+    e.preventDefault();
+    const username = $('#selectedVal').text();
+    const roleName = $('#userRoles').select2('data')[0].GRANTED_ROLE;
+    $.ajax({
+      url: `/users/${username}/roles/revoke/${roleName}`,
+      type: 'POST',
+      contentType: 'application/json'
+    }).done(function (data) {
+      Swal.fire({
+        title: 'Hoàn thành!',
+        icon: 'success',
+        confirmButtonText: 'Ok'
+      })
+      $('#revokeUserRoleBtn').addClass('disabled')
+      $('#revokeUserRole ul.abort').append(`<li>${roleName}</li>`)
+    }).fail(function (error) {
+      Swal.fire({
+        title: 'Lỗi!',
+        text: "Vai trò không tồn tại hoặc không có quyền thu hồi vai trò",
+        icon: 'error',
+        confirmButtonText: 'Cool'
+      })
+    });
+  });
+
+  // On grant
+  $('#allRoles').on('select2:select', function (event) {
+    $('#grantUserRoleBtn').removeClass('disabled')
+  });
+  $("#grantUserRole").submit(function(e){
+    e.preventDefault();
+    const username = $('#selectedVal').text();
+    const roleName = $('#allRoles').select2('data')[0].ROLE;
+    const grantWithOption = $('#grantRoleOption')[0].checked;
+    $.ajax({
+      url: `/users/${username}/roles/grant/${roleName}?option=${grantWithOption}`,
+      type: 'POST',
+      contentType: 'application/json'
+    }).done(function (data) {
+        Swal.fire({
+            title: 'Hoàn thành!',
+            icon: 'success',
+            confirmButtonText: 'Ok'
+        })
+        $('#grantUserRoleBtn').addClass('disabled')
+        $('#grantUserRole ul.check').append(`<li>${roleName} ${grantWithOption ? ' - (WITH ADMIN OPTION) ' : ''}</li>`)
+    }).fail(function (error) {
+      Swal.fire({
+        title: 'Lỗi!',
+        text: "Vai trò đã tồn tại hoặc không có quyền cấp vai trò",
+        icon: 'error',
+        confirmButtonText: 'Cool'
+        })
+    });
+  });
+</script>

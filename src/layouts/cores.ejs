@@ -1,0 +1,52 @@
+<!-- Bootstrap core JavaScript
+    ================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="scripts/jquery-3.2.1.min.js"></script>
+<script src="scripts/popper.min.js"></script>
+<script src="scripts/bootstrap.min.js"></script>
+<script src="scripts/sweetalert2@10.js"></script>
+<script src="scripts/select2.min.js"></script>
+<!-- Tables -->
+<script type="text/javascript" src="scripts/datatables.min.js"></script>
+<script type="text/javascript" src="scripts/dataTables.select.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $('#table_id').DataTable({
+      columnDefs: [{
+        orderable: false,
+        className: 'select-checkbox',
+        targets: 0
+      }],
+      oLanguage: {
+        sSearch: "Tìm kiếm",
+        oPaginate: {
+          sPrevious: "Trước",
+          sNext: "Sau",
+        }
+      },
+      select: {
+        style: 'single'
+      },
+      ordering: true,
+      info: false,
+      lengthChange: false,
+    });
+
+    $('#table_id tbody').on( 'click', 'tr', function () {
+      if($(this).hasClass('selected')){
+        $('.btn-without-selected').removeClass("disabled");
+        $('.btn-with-selected').addClass("disabled");
+      }else{
+        $('.btn-without-selected').addClass("disabled");
+        $('.btn-with-selected').removeClass("disabled");
+      }
+    });
+
+  });
+</script>
+
+<!-- Icons -->
+<script src="scripts/feather.min.js"></script>
+<script>
+  feather.replace()
+</script>

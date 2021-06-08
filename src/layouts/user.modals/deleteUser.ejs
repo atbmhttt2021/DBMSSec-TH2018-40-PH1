@@ -1,0 +1,45 @@
+<!-- Modal Delete -->
+<form class="modal fade" id="delModal">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+        <div class="modal-header border-0 mx-auto">
+            <h6 class="modal-title">Đồng ý xóa người dùng 
+            <span id="inputUsername"></span>?</h6>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-footer border-0 mx-auto">
+            <button type="submit" class="btn btn-danger" >Xóa</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+        </div>
+        
+        </div>
+    </div>
+</form>
+
+<script>
+    // Delete 
+    $("#delModal").submit(function(e){
+        e.preventDefault();
+        const username = $('#delModal #inputUsername').text();
+        $.ajax({
+            url: `/users/${username}`,
+            type: 'DELETE',
+        }).done(function (data) {
+            Swal.fire({
+            title: 'Hoàn thành!',
+            icon: 'success',
+            confirmButtonText: 'Ok'
+            }).then((result) => {
+            window.location.reload();
+            })
+        }).fail(function (error) {
+            console.log('error', error)
+            Swal.fire({
+            title: 'Lỗi!',
+            text: "Username Không tồn tại hoặc không có quyền xoá người dùng",
+            icon: 'error',
+            confirmButtonText: 'Cool'
+            })
+        });
+    });
+</script>

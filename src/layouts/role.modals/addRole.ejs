@@ -1,0 +1,60 @@
+<!-- Modal Add -->
+<form class="modal fade" id="addModal">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+        <div class="modal-header py-2">
+            <h6 class="modal-title">Thêm vai trò</h6>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+            <div class="form-group row">
+            <label for="inputRole" class="col-sm-2 col-form-label">ROLE</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="inputRole" required>
+            </div>
+            </div>
+        </div>
+        
+        <div class="modal-footer py-1">
+            <button type="submit" class="btn btn-success" >Lưu</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+        </div>
+        
+        </div>
+    </div>
+</form>
+
+<script>
+    // Add
+    $("#addModal").submit(function(e){
+        e.preventDefault();
+        const dataToPost = {
+            role: $('#addModal #inputRole').val()
+        }
+        const jsonToPost = JSON.stringify(dataToPost);
+        $.ajax({
+            url: '/roles',
+            type: 'POST',
+            dataType: 'json',
+            data: jsonToPost,
+            contentType: 'application/json'
+        }).done(function (data) {
+            Swal.fire({
+            title: 'Hoàn thành!',
+            icon: 'success',
+            confirmButtonText: 'Ok'
+            }).then((result) => {
+            window.location.reload();
+            })
+        }).fail(function (error) {
+            console.log('error', error)
+            Swal.fire({
+            title: 'Lỗi!',
+            text: "Đã tồn tại hoặc không có quyền thêm vai trò",
+            icon: 'error',
+            confirmButtonText: 'Cool'
+            })
+        });
+    });
+</script>
