@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Quản trị quyền</title>
+  <%- include('../layouts/head'); -%>
+  <!-- Custom styles -->
+  <link href="styles/dashboard.css" rel="stylesheet">
+</head>
+
+<body>
+  <%- include('../layouts/cores'); -%>
+  <%- include('../layouts/navbar'); -%>
+  <div class="container-fluid">
+    <div class="row">
+      <%- include('../layouts/sidebar'); -%>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+          <% if (locals.error) { %>
+            <div>
+              <h6><%= error.message %></h6>
+            </div>
+          <% } %>
+            <div
+              class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+              <h1 class="h4">Ghi nhật ký</h1>
+            </div>
+
+            <div class="my-4">
+              <input type="checkbox" id="logSwitch" data-toggle="toggle"
+              data-size="xs" onchange="onChangeStatus(event)">
+              <label for="logSwitch">Cho phép ghi nhật ký</label>
+            </div>
+        </main>
+    </div>
+  </div>
+
+  <%- include('../layouts/bottom'); -%>
+
+  <script>
+    function onChangeStatus(e){
+      const checked = e.target.checked;
+      const dataToPost = {
+        enable: checked,
+      }
+      const jsonToPost = JSON.stringify(dataToPost);
+      $.ajax({
+        url: '/logger/toggle',
+        type: 'PUT',
+        dataType: 'json',
+        data: jsonToPost,
+        contentType: 'application/json'
+      }).done(function (data) {
+        Swal.fire({
+          title: 'Đã lưu!',
+          icon: 'success',
+          confirmButtonText: 'Ok'
+        }).then((result) => {
+          window.location.reload();
+        })
+      }).fail(function (error) {
+        console.log('error', error)
+        Swal.fire({
+          title: 'Lỗi!',
+          text: "Lỗi ghi nhật ký",
+          icon: 'error',
+          confirmButtonText: 'Cool'
+        })
+      });
+    }
+  </script>
+
+</body>
+</html>

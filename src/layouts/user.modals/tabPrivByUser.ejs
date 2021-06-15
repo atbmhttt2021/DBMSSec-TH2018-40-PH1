@@ -1,0 +1,229 @@
+<!-- Modal Table Privileges -->
+<div class="modal fade" id="tabPrivModal">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title">Danh sách quyền trên các bảng</h6>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <form id="revokeTabPriv">
+          <h6 class="py-2">Quyền đã cấp:</h6>
+          <select id="userTabPri" class="custom-select" style="width: 100%"></select>
+          <div class="modal-footer border-0 px-0 pb-1">
+              <button id="revokeTabPrivBtn" type="submit" class="btn btn-sm btn-danger disabled">Thu hồi</button>
+          </div>
+          <ul class="abort"></ul>
+        </form>
+
+        <form id="grantTabPriv">
+          <h6 class="py-2">Cấp thêm quyền:</h6>
+          <div class="justify-content-between pb-2">
+            <label class="pr-2" for="typePriv">Quyền:</label>
+            <select id="typePriv" class="custom-select" style="width: 100%" required>
+              <option value="" selected disabled>Chưa chọn</option>
+              <option value="SELECT,INSERT,UPDATE,DELETE">SELECT,INSERT,UPDATE,DELETE</option>
+              <option value="SELECT">SELECT</option>
+              <option value="INSERT">INSERT</option>
+              <option value="UPDATE">UPDATE</option>
+              <option value="DELETE">DELETE</option>
+            </select>
+          </div>
+          <div class="justify-content-between pb-2">
+            <label class="pr-2" for="tablePriv">Bảng:</label>
+            <select id="tablePriv" class="custom-select" style="width: 100%" required></select>
+          </div>
+          <div id="tableColsSection" class="justify-content-between pb-2">
+            <label class="pr-2" for="colPriv">Cột:</label>
+            <select id="colPriv" class="custom-select custom-select-sm" style="width: 100%" multiple="multiple"></select>
+          </div>
+
+          <div class="pt-2">
+            <input type="checkbox" id="grantTabPriOption" data-toggle="toggle"
+            data-size="xs">
+            <label for="lockSwitch">WITH GRANT OPTION</label>
+          </div>
+
+          <div class="modal-footer border-0 px-0 py-2">
+            <button id="grantTabPrivBtn" type="submit" class="btn btn-sm btn-success disabled">Cấp quyền</button>
+          </div>
+          <ul class="check"></ul>
+        </form>
+      </div>
+      
+      <div class="modal-footer py-2">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $("#tableColsSection").hide();
+  $("#tabPrivModal").on("hidden.bs.modal", function(){
+    $(this).find("select").val('');
+    $(this).find("input").val('');
+    $(this).find("ul").empty();
+    $("#tableColsSection").hide();
+  });
+
+  // Get table privilege list by user
+  $('#tabPrivModal').on('show.bs.modal', function (event) {
+    const username = $('#selectedVal').text();
+    $('#userTabPri').select2({
+      placeholder: "Chưa chọn",
+      ajax: {
+        url: `/users/${username}/privileges/tab`,
+        type: 'GET',
+        dataType: 'json',
+        processResults: function (data) {
+          return {
+            results: data.map((item, index) => {
+              const text = `${item.PRIVILEGE}${item.TABLE_NAME ? ` on table: ${item.OWNER}.${item.TABLE_NAME}` : ''}${item.COLUMN_NAME ? ` - column: ${item.COLUMN_NAME}` : ''}${item.GRANTABLE === 'YES' ? ' (WITH GRANT OPTION)' : ''}`;
+              return {...item, id: text, text }
+            })
+          };
+        }
+      },
+      language: {
+        noResults: () => "Không tìm thấy dữ liệu!"
+      }
+    });
+  })
+  
+  // Get all table list
+  $('#tablePriv').select2({
+      placeholder: "Chưa chọn",
+      ajax: {
+        url: `/others/tables`,
+        dataType: 'json',
+        processResults: function (data) {
+          return {
+            results: data.map((item, index) => ({...item, id: index, text: `${item.OWNER}.${item.TABLE_NAME}`}))
+          };
+        }
+      },
+      language: {
+        noResults: () => "Không tìm thấy dữ liệu!"
+      }
+  });
+
+  // On select table
+  $('#tablePriv').on('select2:select', function (e) {
+      const tableName = e.params.data.TABLE_NAME;
+      console.log(e.params.data);
+      // Get column list
+      $('#colPriv').select2({
+        placeholder: "Chưa chọn",
+        ajax: {
+          url: `/others/tables/${tableName}/cols`,
+          dataType: 'json',
+          processResults: function (data) {
+            return {
+              results: data.map(item => ({...item, id: item.COLUMN_NAME, text: item.COLUMN_NAME}))
+            };
+          }
+        },
+        language: {
+          noResults: () => "Không tìm thấy dữ liệu!"
+        }
+      });
+      $('#grantTabPrivBtn').removeClass('disabled')
+  });
+
+  // On select Type
+  // Type: select, insert, update, delete
+  $('#typePriv').select2({
+    placeholder: "Chưa chọn"
+  });
+  $('#typePriv').on('select2:select', function (e) {
+    const value = e.params.data.id;
+    if(value === 'UPDATE' || value === 'SELECT'){
+      $('#tableColsSection').show();
+    } else{
+      $('#tableColsSection').hide();
+    }
+    $('#grantTabPrivBtn').removeClass('disabled')
+  });
+  // On select col
+  $('#colPriv').on('select2:select', function (event) {
+      $('#grantTabPrivBtn').removeClass('disabled')
+  });
+
+  // On grant
+  $("#grantTabPriv").submit(function(e){
+    e.preventDefault();
+    const username = $('#selectedVal').text();
+    const grantWithOption = $('#grantTabPriOption')[0].checked;
+    const dataToPost = {
+      privilege: $('#typePriv').select2('data')[0].id,
+      table:  $('#tablePriv').select2('data')[0].text,
+    }
+    const colData = $('#colPriv').select2('data');
+    if(colData){
+      dataToPost.columns = colData.map(item => item.COLUMN_NAME).toString();
+    }
+    const jsonToPost = JSON.stringify(dataToPost);
+    $.ajax({
+      url: `/users/${username}/privileges/tab/grant?option=${grantWithOption}`,
+      type: 'POST',
+      dataType: 'json',
+      data: jsonToPost,
+      contentType: 'application/json'
+    }).done(function (data) {
+      Swal.fire({
+        title: 'Hoàn thành!',
+        icon: 'success',
+        confirmButtonText: 'Ok'
+      })
+      $('#grantTabPrivBtn').addClass('disabled')
+      $('#grantTabPriv ul.check').append(`<li>${dataToPost.privilege} ON ${dataToPost.table}${grantWithOption ? ' - (WITH ADMIN OPTION) ' : ''}</li>`)
+    }).fail(function (error) {
+      Swal.fire({
+        title: 'Lỗi!',
+        text: "Không  tồn tại hoặc không đủ quyền để cấp quyền này",
+        icon: 'error',
+        confirmButtonText: 'Cool'
+      })
+    });
+  });
+  
+
+  // On select role's priv
+  $('#userTabPri').on('select2:select', function (event) {
+      $('#revokeTabPrivBtn').removeClass('disabled')
+  });
+  // On revoke
+  $("#revokeTabPriv").submit(function(e){
+    e.preventDefault();
+    const username = $('#selectedVal').text();
+    const dataToPost = {
+      privilege: $('#userTabPri').select2('data')[0].PRIVILEGE,
+      table:  $('#userTabPri').select2('data')[0].TABLE_NAME,
+    }
+    const jsonToPost = JSON.stringify(dataToPost);
+    $.ajax({
+      url: `/users/${username}/privileges/tab/revoke`,
+      type: 'POST',
+      dataType: 'json',
+      data: jsonToPost,
+      contentType: 'application/json'
+    }).done(function (data) {
+      Swal.fire({
+        title: 'Hoàn thành!',
+        icon: 'success',
+        confirmButtonText: 'Ok'
+      })
+      $('#revokeTabPrivBtn').addClass('disabled')
+      $('#revokeTabPriv ul.abort').append(`<li>${dataToPost.privilege} ON ${dataToPost.table}</li>`)
+    }).fail(function (error) {
+      Swal.fire({
+        title: 'Lỗi!',
+        text: "Không tồn tại hoặc không đủ quyền để thu hồi quyền này",
+        icon: 'error',
+        confirmButtonText: 'Cool'
+      })
+    });
+  });
+</script>

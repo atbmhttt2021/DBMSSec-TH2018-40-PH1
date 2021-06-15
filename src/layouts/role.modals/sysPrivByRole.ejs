@@ -1,0 +1,150 @@
+<!-- Modal System Privileges -->
+<div class="modal fade" id="sysPrivModal">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title">Danh sách quyền hệ thống</h6>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <form id="revokeSysPriv">
+          <h6 class="py-2">Quyền hệ thống đã cấp:</h6>
+          <select id="userSysPriv" class="custom-select" style="width: 100%"></select>
+          <div class="modal-footer border-0 px-0 pb-1">
+            <button id="revokeSysPrivBtn" type="submit" class="btn btn-sm btn-danger disabled">Thu hồi</button>
+          </div>
+          <ul class="abort"></ul>
+        </form>
+
+        <form id="grantSysPriv">
+          <h6 class="py-2">Cấp thêm quyền hệ thống:</h6>
+          <select id="allSysPriv" class="custom-select" style="width: 100%"></select>
+
+          <div class="pt-2">
+            <input type="checkbox" id="grantSysPrivOption" data-toggle="toggle"
+            data-size="xs">
+            <label for="lockSwitch">WITH ADMIN OPTION</label>
+          </div>
+
+          <div class="modal-footer border-0 px-0 py-2">
+            <button id="grantSysPrivBtn" type="submit" class="btn btn-sm btn-success disabled">Cấp quyền</button>
+          </div>
+          <ul class="check"></ul>
+        </form>
+      </div>
+      
+      <div class="modal-footer py-1">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $("#sysPrivModal").on("hidden.bs.modal", function(){
+    $(this).find("select").val('');
+    $(this).find("input").val('');
+    $(this).find("ul").empty();
+  });
+
+  // Get role system priv list
+  $('#sysPrivModal').on('show.bs.modal', function (event) {
+    const role = $('#selectedVal').text();
+    $('#userSysPriv').select2({
+      placeholder: "Chưa chọn",
+      ajax: {
+        url: `/roles/${role}/privileges/sys`,
+        type: 'GET',
+        dataType: 'json',
+        processResults: function (data) {
+          return {
+            results: data.map(item => ({...item, id: item.PRIVILEGE, text: `${item.PRIVILEGE}${item.ADMIN_OPTION === 'YES' ? ' - (WITH ADMIN OPTION) ' : ''}`}))
+          };
+        }
+      },
+      language: {
+        noResults: () => "Không tìm thấy dữ liệu!"
+      }
+    });
+
+    // Get available system priv list
+    $('#allSysPriv').select2({
+      placeholder: "Chưa chọn",
+      ajax: {
+        url: `/privileges/sys/vailable`,
+        type: 'GET',
+        dataType: 'json',
+        processResults: function (data) {
+          return {
+            results: data.map(item => ({...item, id: item.PRIVILEGE, text: item.PRIVILEGE}))
+          };
+        }
+      },
+      language: {
+        noResults: () => "Không có quyền nào!"
+      }
+    });
+  });
+
+  // On revoke
+  $('#userSysPriv').on('select2:select', function (event) {
+    $('#revokeSysPrivBtn').removeClass('disabled')
+  });
+  $("#revokeSysPriv").submit(function(e){
+    e.preventDefault();
+    const role = $('#selectedVal').text();
+    const privilege = $('#userSysPriv').select2('data')[0].PRIVILEGE;
+    $.ajax({
+      url: `/roles/${role}/privileges/sys/revoke/${privilege}`,
+      type: 'POST',
+      contentType: 'application/json'
+    }).done(function (data) {
+      Swal.fire({
+        title: 'Hoàn thành!',
+        icon: 'success',
+        confirmButtonText: 'Ok'
+      })
+      $('#revokeSysPrivBtn').addClass('disabled')
+      $('#revokeSysPriv ul.abort').append(`<li>${privilege}</li>`)
+    }).fail(function (error) {
+      Swal.fire({
+        title: 'Lỗi!',
+        text: "Không tồn tại hoặc không có quyền thu hồi quyền này",
+        icon: 'error',
+        confirmButtonText: 'Cool'
+      })
+    });
+  });
+
+  // On grant
+  $('#allSysPriv').on('select2:select', function (event) {
+    $('#grantSysPrivBtn').removeClass('disabled')
+  });
+  $("#grantSysPriv").submit(function(e){
+    e.preventDefault();
+    const role = $('#selectedVal').text();
+    const privilege = $('#allSysPriv').select2('data')[0].PRIVILEGE;
+    const grantWithOption = $('#grantSysPrivOption')[0].checked;
+    $.ajax({
+      url: `/roles/${role}/privileges/sys/grant/${privilege}?option=${grantWithOption}`,
+      type: 'POST',
+      contentType: 'application/json'
+    }).done(function (data) {
+        Swal.fire({
+            title: 'Hoàn thành!',
+            icon: 'success',
+            confirmButtonText: 'Ok'
+        })
+        $('#grantSysPrivBtn').addClass('disabled')
+        $('#grantSysPriv ul.check').append(`<li>${privilege} ${grantWithOption ? ' - (WITH ADMIN OPTION) ' : ''}</li>`)
+    }).fail(function (error) {
+      Swal.fire({
+        title: 'Lỗi!',
+        text: "Không có quyền cấp thêm quyền",
+        icon: 'error',
+        confirmButtonText: 'Cool'
+        })
+    });
+  });
+</script>

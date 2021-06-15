@@ -1,0 +1,53 @@
+<!-- Modal Lock/unlock -->
+<form class="modal fade" id="lockModal">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+        <div class="modal-header py-2">
+            <h6 class="modal-title">Khoá / mở khoá tài khoản</h6>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+            <input type="checkbox" id="lockSwitch" data-toggle="toggle"
+            data-size="xs">
+            <label for="lockSwitch">Khoá</label>
+        </div>
+        
+        <div class="modal-footer py-1">
+            <button type="submit" class="btn btn-success" >Lưu</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+        </div>
+        
+        </div>
+    </div>
+</form>
+
+<script>
+    // Lock/unlock
+    $("#lockModal").submit(function(e){
+        e.preventDefault();
+        const username = $('#selectedVal').text();
+        const isLock = $('#lockSwitch')[0].checked;
+        $.ajax({
+            url: `/users/${username}/${isLock ? 'lock' : 'unlock'}`,
+            type: 'PATCH',
+            contentType: 'application/json'
+        }).done(function (data) {
+            Swal.fire({
+                title: 'Hoàn thành!',
+                icon: 'success',
+                confirmButtonText: 'Ok'
+                }).then((result) => {
+                window.location.reload();
+            })
+        }).fail(function (error) {
+            console.log('error', error)
+                Swal.fire({
+                title: 'Lỗi!',
+                text: "Dữ liệu không hợp lệ hoặc không có quyền cập nhật thông tin",
+                icon: 'error',
+                confirmButtonText: 'Cool'
+            })
+        });
+    });
+</script>

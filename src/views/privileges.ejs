@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Quản trị quyền</title>
+  <%- include('../layouts/head'); -%>
+  <!-- Custom styles -->
+  <link href="styles/dashboard.css" rel="stylesheet">
+</head>
+
+<body>
+  <%- include('../layouts/cores'); -%>
+  <%- include('../layouts/navbar'); -%>
+    <div class="container-fluid">
+      <div class="row">
+        <%- include('../layouts/sidebar'); -%>
+          <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+            <% if (locals.error) { %>
+              <div>
+                <h6><%= error.message %></h6>
+              </div>
+            <% } %>
+            <% if (locals.list) { %>
+              <div
+                class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                <h1 class="h4">Quyền của bạn</h1>
+              </div>
+
+              <div class="table-responsive card-body">
+                <table id="table_id" class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th scope="col">#</th>
+                      <th scope="col">PRIVILEGE</th>
+                      <th scope="col">OWNER</th>
+                      <th scope="col">OBJ_NAME</th>
+                      <th scope="col">GRANT_SOURCES</th>
+                      <th scope="col">ADMIN_OR_GRANT_OPTION</th>
+                      <th scope="col">HIERARCHY_OPTION</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% for(let i=0; i<list.length; i++) { %>
+                      <tr>
+                        <td class="select-checkbox"></td>
+                        <th scope="row"><%= i + 1 %></th>
+                        <td> <%= list[i].PRIVILEGE %></td>
+                        <td><%= list[i].OBJ_OWNER %></td>
+                        <td><%= list[i].OBJ_NAME %></td>
+                        <td><%= list[i].GRANT_SOURCES %></td>
+                        <td><%= list[i].ADMIN_OR_GRANT_OPT %></td>
+                        <td><%= list[i].HIERARCHY_OPT %></td>
+                      </tr>
+                      <% } %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </main>
+      </div>
+    </div>
+
+    <%- include('../layouts/bottom'); -%>
+
+</body>
+</html>
