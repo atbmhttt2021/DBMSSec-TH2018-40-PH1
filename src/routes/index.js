@@ -15,7 +15,7 @@ router
 .use('/roles', withAuth, roleRoutes)
 .use('/privileges', withAuth, privilegeRoutes)
 .use('/others', withAuth, otherRoutes)
-.use('/logger', withAuth, loggerRoutes)
+.use('/logging', withAuth, loggerRoutes)
 .get('/', function (req, res) {
   res.redirect('/users');
 })
