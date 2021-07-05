@@ -6,7 +6,7 @@ const conn = ({username, password}) => knex({
     host: '127.0.0.1',
     user: username,
     password,
-    database: 'ORCLCDB.localdomain',
+    database: 'PDB01.localdomain',
     port: 1521
   },
   pool: { min: 0, max: 50 }

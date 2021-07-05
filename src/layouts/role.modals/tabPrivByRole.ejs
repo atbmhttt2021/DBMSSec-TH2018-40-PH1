@@ -23,7 +23,7 @@
             <label class="pr-2" for="typePriv">Quyền:</label>
             <select id="typePriv" class="custom-select" style="width: 100%" required>
               <option value="" selected disabled>Chưa chọn</option>
-              <option value="SELECT,INSERT,UPDATE,DELETE">SELECT,INSERT,UPDATE,DELETE</option>
+              <!-- <option value="SELECT,INSERT,UPDATE,DELETE">SELECT,INSERT,UPDATE,DELETE</option> -->
               <option value="SELECT">SELECT</option>
               <option value="INSERT">INSERT</option>
               <option value="UPDATE">UPDATE</option>
@@ -34,10 +34,10 @@
             <label class="pr-2" for="tablePriv">Bảng:</label>
             <select id="tablePriv" class="custom-select" style="width: 100%" required></select>
           </div>
-          <div id="tableColsSection" class="justify-content-between pb-2">
+          <!-- <div id="tableColsSection" class="justify-content-between pb-2">
             <label class="pr-2" for="colPriv">Cột:</label>
             <select id="colPriv" class="custom-select custom-select-sm" style="width: 100%" multiple="multiple"></select>
-          </div>
+          </div> -->
 
           <div class="modal-footer border-0 px-0 py-2">
             <button id="grantTabPrivBtn" type="submit" class="btn btn-sm btn-success disabled">Cấp quyền</button>
@@ -152,10 +152,10 @@
       privilege: $('#typePriv').select2('data')[0].id,
       table:  $('#tablePriv').select2('data')[0].text,
     }
-    const colData = $('#colPriv').select2('data');
-    if(colData){
-      dataToPost.columns = colData.map(item => item.COLUMN_NAME);
-    }
+    // const colData = $('#colPriv').select2('data');
+    // if(colData){
+    //   dataToPost.columns = colData.map(item => item.COLUMN_NAME);
+    // }
     const jsonToPost = JSON.stringify(dataToPost);
     $.ajax({
       url: `/roles/${role}/privileges/tab/grant`,

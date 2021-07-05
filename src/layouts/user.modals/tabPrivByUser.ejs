@@ -23,7 +23,7 @@
             <label class="pr-2" for="typePriv">Quyền:</label>
             <select id="typePriv" class="custom-select" style="width: 100%" required>
               <option value="" selected disabled>Chưa chọn</option>
-              <option value="SELECT,INSERT,UPDATE,DELETE">SELECT,INSERT,UPDATE,DELETE</option>
+              <!-- <option value="SELECT,INSERT,UPDATE,DELETE">SELECT,INSERT,UPDATE,DELETE</option> -->
               <option value="SELECT">SELECT</option>
               <option value="INSERT">INSERT</option>
               <option value="UPDATE">UPDATE</option>
@@ -34,10 +34,10 @@
             <label class="pr-2" for="tablePriv">Bảng:</label>
             <select id="tablePriv" class="custom-select" style="width: 100%" required></select>
           </div>
-          <div id="tableColsSection" class="justify-content-between pb-2">
+          <!-- <div id="tableColsSection" class="justify-content-between pb-2">
             <label class="pr-2" for="colPriv">Cột:</label>
             <select id="colPriv" class="custom-select custom-select-sm" style="width: 100%" multiple="multiple"></select>
-          </div>
+          </div> -->
 
           <div class="pt-2">
             <input type="checkbox" id="grantTabPriOption" data-toggle="toggle"
@@ -112,7 +112,7 @@
   // On select table
   $('#tablePriv').on('select2:select', function (e) {
       const tableName = e.params.data.TABLE_NAME;
-      console.log(e.params.data);
+
       // Get column list
       $('#colPriv').select2({
         placeholder: "Chưa chọn",
@@ -160,10 +160,10 @@
       privilege: $('#typePriv').select2('data')[0].id,
       table:  $('#tablePriv').select2('data')[0].text,
     }
-    const colData = $('#colPriv').select2('data');
-    if(colData){
-      dataToPost.columns = colData.map(item => item.COLUMN_NAME).toString();
-    }
+    // const colData = $('#colPriv').select2('data');
+    // if(colData){
+    //   dataToPost.columns = colData.map(item => item.COLUMN_NAME).toString();
+    // }
     const jsonToPost = JSON.stringify(dataToPost);
     $.ajax({
       url: `/users/${username}/privileges/tab/grant?option=${grantWithOption}`,

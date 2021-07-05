@@ -14,12 +14,11 @@ router.get('/', withAuth, function (req, res) {
 router.get('/1', withAuth, async function (req, res) {
   const data = {
     path: 'logging',
-    pageTitle: "Nhật ký thao tác của người dùng với các đối tượng cơ sở dữ liệu"
+    pageTitle: "Nhật ký thao tác người dùng có quyền DBA"
   }
   try {
     const db = conn(req.session.user);
-    data.list = await db.raw('SELECT USERNAME, OWNER, OBJ_NAME, ACTION_NAME, SQL_TEXT FROM DBA_AUDIT_TRAIL');
-    console.log('data.list :>> ', data.list);
+    data.list = []//await db.raw('');
   } catch (error) {
     console.log(error);
     data.error = {
@@ -31,8 +30,33 @@ router.get('/1', withAuth, async function (req, res) {
   }
 })
 
-
 router.get('/2', withAuth, async function (req, res) {
+  const data = {
+    path: 'logging',
+    pageTitle: "Nhật ký đăng nhập thất bại"
+  }
+  try {
+    const db = conn(req.session.user);
+    data.list = await db.raw(`select 
+        os_username,
+        username,
+        terminal,
+        to_char(timestamp,'MM-DD-YYYY HH24:MI:SS') as time
+    from dba_audit_trail`);
+  } catch (error) {
+    console.log(error);
+    data.error = {
+      message: "Không có quyền xem nhật ký"
+    };
+  }
+  finally {
+    res.render('logger-2', data);
+  }
+})
+
+
+
+router.get('/3', withAuth, async function (req, res) {
   const data = {
     path: 'logging',
     pageTitle: "Nhật ký thêm, sửa thông tin lương nhân viên"
@@ -47,7 +71,7 @@ router.get('/2', withAuth, async function (req, res) {
     };
   }
   finally {
-    res.render('logger-2', data);
+    res.render('logger-3', data);
   }
 })
 

@@ -33,9 +33,8 @@
                   <tr>
                     <th></th>
                     <th scope="col">#</th>
-                    <th scope="col">Người dùng hệ điều hành</th>
-                    <th scope="col">Tên người dùng</th>
-                    <th scope="col">Terminal</th>
+                    <th scope="col">Người thực hiện</th>
+                    <th scope="col">Chí tiết</th>
                     <th scope="col">Thời gian</th>
                   </tr>
                 </thead>
@@ -44,10 +43,9 @@
                     <tr>
                       <td class="select-checkbox"></td>
                       <th scope="row"><%= i + 1 %></th>
-                      <td><%= list[i].OS_USERNAME %></td>
-                      <td><%= list[i].USERNAME %></td>
-                      <td><%= list[i].TERMINAL %></td>
-                      <td><%= list[i].TIME %></td>
+                      <td><%= list[i].DBUID %></td>
+                      <td><%= list[i].LSQLTEXT %></td>
+                      <td><%= list[i]['NTIMESTAMP#'] %></td>
                     </tr>
                     <% } %>
                 </tbody>

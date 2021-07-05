@@ -1,12 +1,10 @@
 -- Connect to sysdba user (via sqlplus with username:  / as sysdba
 -- or via sql developer, etc ...)
+conn / as sysdba;
 
--- oracle 12 fix create user issue
--- ALTER SESSION set "_ORACLE_SCRIPT"=true;
-
--- create admin user
-CREATE USER SYSADMIN IDENTIFIED BY ADMIN QUOTA 100M ON USERS;
-grant CONNECT, RESOURCE, DBA to SYSADMIN WITH ADMIN OPTION;
+-- grant role to admin user
+-- CREATE USER SYSADMIN IDENTIFIED BY ADMIN QUOTA 100M ON USERS;
+grant CONNECT, RESOURCE, DBA, SYSDBA to SYSADMIN WITH ADMIN OPTION;
 
 
 -- -- Grant some privileges to admin user

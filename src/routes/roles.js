@@ -60,7 +60,7 @@ router.post('/', async function (req, res) {
 router.delete('/:role', async function (req, res) {
   const db = conn(req.session.user);
   const role = req.params.role;
-  await db.raw(`DROP ROLE ${role} CASCADE`);
+  await db.raw(`DROP ROLE ${role}`);
   res.json({status: 'ok'})
 })
 
@@ -118,25 +118,28 @@ router.post('/:role/privileges/tab/grant', async function (req, res) {
   const privilege = req.body.privilege;
   const table = req.body.table;
   const columns = req.body.columns;
-  if(privilege === 'UPDATE'){
-    await db.raw(`GRANT ${privilege} ${columns ? `(${columns})` : ''} ON ${table} TO ${role}`);
+  if(privilege){
+      await db.raw(`GRANT ${privilege} ${columns ? `(${columns})` : ''} ON ${table} TO ${role}`);
   }
-  if(privilege === 'SELECT'){
-    if(columns){
-      await db.raw(`CREATE OR REPLACE VIEW ${table}_view
-          AS
-          SELECT
-            ${columns}
-          FROM
-            ${table}`);
-      await db.raw(`GRANT SELECT ON ${table} to ${username}`);
-    } else {
-      await db.raw(`GRANT ${privilege} ON ${table} TO ${role}`);
-    }
-  }
-  if(privilege === 'CREATE' || privilege === 'DELETE'){
-    await db.raw(`GRANT ${privilege} ON ${table} TO ${role}`);
-  }
+  // if(privilege === 'UPDATE'){
+  //   await db.raw(`GRANT ${privilege} ${columns ? `(${columns})` : ''} ON ${table} TO ${role}`);
+  // }
+  // if(privilege === 'SELECT'){
+  //   if(columns){
+  //     await db.raw(`CREATE OR REPLACE VIEW ${table}_view
+  //         AS
+  //         SELECT
+  //           ${columns}
+  //         FROM
+  //           ${table}`);
+  //     await db.raw(`GRANT SELECT ON ${table} to ${username}`);
+  //   } else {
+  //     await db.raw(`GRANT ${privilege} ON ${table} TO ${role}`);
+  //   }
+  // }
+  // if(privilege === 'CREATE' || privilege === 'DELETE'){
+  //   await db.raw(`GRANT ${privilege} ON ${table} TO ${role}`);
+  // }
   res.json({status: 'ok'})
 })
 

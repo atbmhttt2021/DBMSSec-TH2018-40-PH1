@@ -123,25 +123,28 @@ router.post('/:username/privileges/tab/grant', async function (req, res) {
   const table = req.body.table;
   const columns = req.body.columns;
   const option = req.query.option === 'true';
-  if(privilege === 'UPDATE'){
-    await db.raw(`GRANT ${privilege} ${columns ? `(${columns})` : ''} ON ${table} TO ${username} ${option ? 'WITH GRANT OPTION' : ''}`);
+  if(privilege){
+      await db.raw(`GRANT ${privilege} ${columns ? `(${columns})` : ''} ON ${table} TO ${username} ${option ? 'WITH GRANT OPTION' : ''}`);
   }
-  if(privilege === 'SELECT'){
-    if(columns){
-      await db.raw(`CREATE OR REPLACE VIEW ${table}_view
-          AS
-          SELECT
-            ${columns}
-          FROM
-            ${table}`);
-      await db.raw(`GRANT SELECT ON ${table} to ${username}`);
-    } else {
-      await db.raw(`GRANT ${privilege} ON ${table} TO ${username} ${option ? 'WITH GRANT OPTION' : ''}`);
-    }
-  }
-  if(privilege === 'CREATE' || privilege === 'DELETE'){
-    await db.raw(`GRANT ${privilege} ON ${table} TO ${username} ${option ? 'WITH GRANT OPTION' : ''}`);
-  }
+  // if(privilege === 'UPDATE'){
+  //   await db.raw(`GRANT ${privilege} ${columns ? `(${columns})` : ''} ON ${table} TO ${username} ${option ? 'WITH GRANT OPTION' : ''}`);
+  // }
+  // if(privilege === 'SELECT'){
+  //   if(columns){
+  //     await db.raw(`CREATE OR REPLACE VIEW ${table}_view
+  //         AS
+  //         SELECT
+  //           ${columns}
+  //         FROM
+  //           ${table}`);
+  //     await db.raw(`GRANT SELECT ON ${table} to ${username}`);
+  //   } else {
+  //     await db.raw(`GRANT ${privilege} ON ${table} TO ${username} ${option ? 'WITH GRANT OPTION' : ''}`);
+  //   }
+  // }
+  // if(privilege === 'CREATE' || privilege === 'DELETE'){
+  //   await db.raw(`GRANT ${privilege} ON ${table} TO ${username} ${option ? 'WITH GRANT OPTION' : ''}`);
+  // }
   
   res.json({status: 'ok'})
 })
