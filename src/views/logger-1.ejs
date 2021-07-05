@@ -34,10 +34,11 @@
                     <th></th>
                     <th scope="col">#</th>
                     <th scope="col">Người thực hiện</th>
-                    <th scope="col">Sở hữu</th>
                     <th scope="col">Đối tượng</th>
+                    <th scope="col">Sở hữu</th>
                     <th scope="col">Thao tác</th>
                     <th scope="col">Chi tiết</th>
+                    <th scope="col">Thời gian</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -46,10 +47,11 @@
                       <td class="select-checkbox"></td>
                       <th scope="row"><%= i + 1 %></th>
                       <td><%= list[i].USERNAME %></td>
-                      <td><%= list[i].OWNER %></td>
                       <td><%= list[i].OBJ_NAME %></td>
+                      <td><%= list[i].OWNER %></td>
                       <td><%= list[i].ACTION_NAME %></td>
                       <td><%= list[i].SQL_TEXT %></td>
+                      <td><%= list[i].TIME %></td>
                     </tr>
                     <% } %>
                 </tbody>

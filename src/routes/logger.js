@@ -18,7 +18,9 @@ router.get('/1', withAuth, async function (req, res) {
   }
   try {
     const db = conn(req.session.user);
-    data.list = []//await db.raw('');
+    data.list = await db.raw(`select username, owner, obj_name, action_name, sql_text
+    to_char(timestamp,'MM-DD-YYYY HH24:MI:SS') as time
+      from dba_audit_trail where rownum <= 100`);
   } catch (error) {
     console.log(error);
     data.error = {
@@ -42,7 +44,7 @@ router.get('/2', withAuth, async function (req, res) {
         username,
         terminal,
         to_char(timestamp,'MM-DD-YYYY HH24:MI:SS') as time
-    from dba_audit_trail`);
+    from dba_audit_trail where rownum <= 100`);
   } catch (error) {
     console.log(error);
     data.error = {
