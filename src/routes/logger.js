@@ -14,11 +14,11 @@ router.get('/', withAuth, function (req, res) {
 router.get('/1', withAuth, async function (req, res) {
   const data = {
     path: 'logging',
-    pageTitle: "Nhật ký thao tác người dùng có quyền DBA"
+    pageTitle: "Nhật ký thao tác người dùng DBA"
   }
   try {
     const db = conn(req.session.user);
-    data.list = await db.raw(`select username, owner, obj_name, action_name, sql_text
+    data.list = await db.raw(`select username, owner, obj_name, action_name, sql_text,
     to_char(timestamp,'MM-DD-YYYY HH24:MI:SS') as time
       from dba_audit_trail where rownum <= 100`);
   } catch (error) {
